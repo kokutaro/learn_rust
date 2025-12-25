@@ -66,7 +66,7 @@ fn get_adult_user_names(file_path: &str) -> Result<Vec<String>, Box<dyn Error>> 
         .lines()
         .filter_map(|line| {
             let parts: Vec<&str> = line.split(',').collect();
-            let name: &&str = parts.get(0)?;
+            let name: &&str = parts.first()?;
             let age: i32 = parts.get(1)?.parse().ok()?;
             if age >= 20 {
                 Some(name.to_string())
@@ -92,8 +92,7 @@ enum WebRequest {
 impl WebRequest {
     fn is_finished(&self) -> bool {
         match self {
-            WebRequest::Loading => false,
-            _ => true,
+            matches!(self, WebRequest::Loading) => false,
         }
     }
 }
