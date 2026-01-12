@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourcePerFileMappings">
+    <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/95f3c7b3-4e34-4cd7-8d7e-7d9300475513/console.sql" value="95f3c7b3-4e34-4cd7-8d7e-7d9300475513" />
+    <file url="file://$APPLICATION_CONFIG_DIR$/consoles/db/95f3c7b3-4e34-4cd7-8d7e-7d9300475513/console_1.sql" value="95f3c7b3-4e34-4cd7-8d7e-7d9300475513" />
+    <file url="file://$PROJECT_DIR$/src/infrastructure/repository/sqlx_ticket_repository.rs" value="95f3c7b3-4e34-4cd7-8d7e-7d9300475513" />
+  </component>
+</project>
