@@ -5,7 +5,6 @@ use crate::domain::tickets::ticket_status::TicketStatus;
 use async_trait::async_trait;
 use sqlx::{Postgres, Transaction};
 use std::any::Any;
-use std::pin::Pin;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use tracing::{info_span, Instrument};
