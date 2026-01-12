@@ -20,17 +20,15 @@ pub trait UnitOfWork: Send + Sync {
 
 #[async_trait]
 pub trait UowFactory: Send + Sync {
-    async fn execute_raw(
-        &self,
-        f: Box<
-            dyn FnOnce(
-                    Box<dyn UnitOfWork>,
-                )
-                    -> Pin<Box<dyn Future<Output = Result<Box<dyn Any + Send>>> + Send>>
-                + Send,
-        >,
-    ) -> Result<Box<dyn Any + Send>>;
+    async fn execute_raw(&self, f: UowFnc) -> Result<Box<dyn Any + Send>>;
 }
+
+pub type UowFnc = Box<
+    dyn FnOnce(
+            Box<dyn UnitOfWork>,
+        ) -> Pin<Box<dyn Future<Output = Result<Box<dyn Any + Send>>> + Send>>
+        + Send,
+>;
 
 #[async_trait]
 pub trait UowFactoryExt: UowFactory {

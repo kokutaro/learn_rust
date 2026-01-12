@@ -1,5 +1,5 @@
 use crate::domain::error::{DomainError, Result};
-use crate::domain::tickets::repository::{TicketRepository, UnitOfWork, UowFactory};
+use crate::domain::tickets::repository::{TicketRepository, UnitOfWork, UowFactory, UowFnc};
 use crate::domain::tickets::ticket::{Ticket, TicketId};
 use crate::domain::tickets::ticket_status::TicketStatus;
 use async_trait::async_trait;
@@ -23,16 +23,7 @@ impl SqlxUowFactory {
 
 #[async_trait]
 impl UowFactory for SqlxUowFactory {
-    async fn execute_raw(
-        &self,
-        f: Box<
-            dyn FnOnce(
-                    Box<dyn UnitOfWork>,
-                )
-                    -> Pin<Box<dyn Future<Output = Result<Box<dyn Any + Send>>> + Send>>
-                + Send,
-        >,
-    ) -> Result<Box<dyn Any + Send>> {
+    async fn execute_raw(&self, f: UowFnc) -> Result<Box<dyn Any + Send>> {
         let span = info_span!("db_transaction");
 
         // 1. Begin transaction
