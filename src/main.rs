@@ -106,9 +106,8 @@ fn handle_request(request: WebRequest) {
         WebRequest::Failure { code, message } => {
             println!("Request failed with code {}: {}", code, message)
         }
-        WebRequest::Timeout => println!("Request timed out."),
-        WebRequest::TooManyRequests { retry_after } => {
-            println!("Too many requests. Retry after {} seconds.", retry_after)
-        }
-    }
+    let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    axum::serve(listener, app.into_make_service())
+        .await
+        .unwrap();
 }
