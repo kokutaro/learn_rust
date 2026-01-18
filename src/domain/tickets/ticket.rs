@@ -1,8 +1,8 @@
-use crate::domain::tickets::ticket_description::TicketDescription;
+use crate::domain::tickets::ticket_description::{TicketDescription, TicketDescriptionError};
 use crate::domain::tickets::ticket_error::TicketError;
 pub(crate) use crate::domain::tickets::ticket_id::TicketId;
 use crate::domain::tickets::ticket_status::TicketStatus;
-use crate::domain::tickets::ticket_title::TicketTitle;
+use crate::domain::tickets::ticket_title::{TicketTitle, TicketTitleError};
 
 #[derive(Debug, Clone)]
 pub struct Ticket {
@@ -17,8 +17,8 @@ pub struct Ticket {
 impl Ticket {
     pub(crate) fn reconstruct(
         id: TicketId,
-        title: impl TryInto<TicketTitle, Error=TicketError>,
-        description: impl TryInto<TicketDescription, Error=TicketError>,
+        title: impl TryInto<TicketTitle, Error = TicketTitleError>,
+        description: impl TryInto<TicketDescription, Error = TicketDescriptionError>,
         status: TicketStatus,
         assignee: Option<uuid::Uuid>,
         version: i64,
@@ -36,8 +36,8 @@ impl Ticket {
 
 impl Ticket {
     pub fn new(
-        title: impl TryInto<TicketTitle, Error=TicketError>,
-        description: impl TryInto<TicketDescription, Error=TicketError>,
+        title: impl TryInto<TicketTitle, Error = TicketTitleError>,
+        description: impl TryInto<TicketDescription, Error = TicketDescriptionError>,
         assignee: Option<uuid::Uuid>,
     ) -> Result<Self, TicketError> {
         Ok(Self {
@@ -71,11 +71,11 @@ impl Ticket {
     }
 
     pub fn title(&self) -> String {
-        self.title.to_string()
+        self.title.as_ref().to_string()
     }
 
     pub fn description(&self) -> String {
-        self.description.to_string()
+        self.description.as_ref().to_string()
     }
     pub fn version(&self) -> i64 {
         self.version

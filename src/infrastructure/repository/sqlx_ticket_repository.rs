@@ -1,13 +1,14 @@
 use crate::domain::error::{DomainError, Result};
 use crate::domain::tickets::repository::{TicketRepository, UnitOfWork, UowFactory, UowFnc};
 use crate::domain::tickets::ticket::{Ticket, TicketId};
+use crate::domain::tickets::ticket_error::TicketError;
 use crate::domain::tickets::ticket_status::TicketStatus;
 use async_trait::async_trait;
 use sqlx::{Postgres, Transaction};
 use std::any::Any;
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use tracing::{info_span, Instrument};
+use tracing::info_span;
 use uuid::Uuid;
 
 pub struct SqlxUowFactory {
@@ -23,7 +24,8 @@ impl SqlxUowFactory {
 #[async_trait]
 impl UowFactory for SqlxUowFactory {
     async fn execute_raw(&self, f: UowFnc) -> Result<Box<dyn Any + Send>> {
-        let span = info_span!("db_transaction");
+        let span = info_span!("db.transaction", db.system = "postgresql");
+        let _enter = span.enter();
 
         // 1. Begin transaction
         let tx = self
@@ -37,7 +39,7 @@ impl UowFactory for SqlxUowFactory {
         });
 
         // 2. Execute closure(use case Logic)
-        let result = f(uow).instrument(span).await;
+        let result = f(uow).await;
 
         match result {
             Ok(value) => {
@@ -48,6 +50,7 @@ impl UowFactory for SqlxUowFactory {
                     tx.commit()
                         .await
                         .map_err(|e| DomainError::Infrastructure(e.into()))?;
+                    tracing::info!("Transaction committed");
                     Ok(value)
                 } else {
                     Err(DomainError::Infrastructure(
@@ -57,7 +60,10 @@ impl UowFactory for SqlxUowFactory {
             }
             // 4. Rollback transaction on error
             // Automatically rollbacks when the transaction is dropped(sqlx feature)
-            Err(e) => Err(e),
+            Err(e) => {
+                tracing::error!(error= ?e, "Transaction rollback");
+                Err(e)
+            }
         }
     }
 }
@@ -88,7 +94,7 @@ impl UnitOfWork for SqlxUnitOfWork {
 
 #[async_trait]
 impl<'a> TicketRepository for SqlxTicketRepository<'a> {
-    async fn find_by_id(&self, id: TicketId) -> Option<Ticket> {
+    async fn find_by_id(&self, id: TicketId) -> Result<Ticket> {
         let mut tx = self.tx.lock().await;
         let row = sqlx::query_as!(
             TicketRow,
@@ -101,14 +107,14 @@ impl<'a> TicketRepository for SqlxTicketRepository<'a> {
         )
         .fetch_optional(&mut **tx)
         .await
-        .map_err(|e| DomainError::RepositoryError(e.to_string()))
-        .ok()??;
+        .map_err(|e| DomainError::RepositoryError(e.to_string()))?
+        .ok_or(TicketError::NotFound)?;
 
-        Some(Ticket::reconstruct(
+        Ok(Ticket::reconstruct(
             TicketId::from(row.id),
             row.title,
             row.description,
-            row.status.parse().ok()?,
+            row.status.parse().map_err(|_| TicketError::InvalidStatus)?,
             row.assignee,
             row.version,
         ))

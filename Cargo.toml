@@ -9,21 +9,19 @@ tokio = { version = "1.49", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 axum = "0.8"
-reqwest = { version = "0.13", features = ["json"] }
-clap = { version = "4.0", features = ["derive"] }
-futures = "0.3"
 async-trait = "0.1"
-trait-variant = "0.1.2"
-hyper = "1.8"
 uuid = { version = "1", features = ["v4", "serde"] }
 sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "postgres", "macros", "uuid"] }
 dotenv = "0.15.0"
-opentelemetry-otlp = "0.31.0"
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt", "json"] }
-tower = "0.5"
-tower-http = { version = "0.6", features = ["trace", "cors"] }
-anyhow = "1.0"
+tracing-opentelemetry = "0.32.1"
+opentelemetry = { version = "0.31.0", features = ["logs", "metrics"] }
+opentelemetry_sdk = { version = "0.31", features = ["rt-tokio", "trace", "logs"] }
+opentelemetry-otlp = { version = "0.31", features = ["logs", "trace", "grpc-tonic"] }
+opentelemetry-appender-tracing = "0.31"
+opentelemetry-appender-log = "0.31"
+nutype = "0.6"
 
 [dev-dependencies]
 mockall = "0.14"

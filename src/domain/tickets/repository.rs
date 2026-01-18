@@ -7,7 +7,7 @@ use std::pin::Pin;
 
 #[async_trait]
 pub trait TicketRepository: Send + Sync {
-    async fn find_by_id(&self, id: TicketId) -> Option<Ticket>;
+    async fn find_by_id(&self, id: TicketId) -> Result<Ticket>;
     async fn insert(&mut self, ticket: Ticket) -> Result<()>;
     async fn save(&mut self, ticket: Ticket) -> Result<()>;
 }

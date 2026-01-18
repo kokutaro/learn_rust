@@ -1,3 +1,5 @@
+use crate::domain::tickets::ticket_description::TicketDescriptionError;
+use crate::domain::tickets::ticket_title::TicketTitleError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -14,4 +16,8 @@ pub enum TicketError {
     NotFound,
     #[error("Invalid usecase status")]
     InvalidStatus,
+    #[error("Ticket description error: {0}")]
+    TicketDescriptionError(#[from] TicketDescriptionError),
+    #[error("Ticket title error: {0}")]
+    TicketTitleError(#[from] TicketTitleError),
 }

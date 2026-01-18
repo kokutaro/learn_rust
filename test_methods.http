@@ -1,5 +1,5 @@
 ### チケット作成
-POST http://localhost:3000/tickets
+POST http://localhost:3001/tickets
 Content-Type: application/json
 
 {
@@ -8,4 +8,4 @@ Content-Type: application/json
 }
 
 ### チケットクローズ
-DELETE http://localhost:3000/tickets/48664659-faa6-48a5-bb3f-d622ace632bf
+DELETE http://localhost:3001/tickets/ba9fc562-49d3-4cb0-8e79-241119051f8a

@@ -7,15 +7,19 @@ use axum::response::IntoResponse;
 use axum::Json;
 use serde::Deserialize;
 use std::sync::Arc;
-use tracing::error;
 use uuid::Uuid;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct CreateTicketRequest {
     pub title: String,
     pub description: String,
 }
 
+#[tracing::instrument(
+    name = "POST /tickets",
+    skip(uow_factory),
+    fields(title = %request.title, description = %request.description)
+)]
 pub async fn create_ticket(
     State(uow_factory): State<Arc<dyn UowFactory>>,
     Json(request): Json<CreateTicketRequest>,
@@ -28,13 +32,15 @@ pub async fn create_ticket(
     .await;
     match id {
         Ok(_) => StatusCode::CREATED.into_response(),
-        Err(e) => {
-            error!("{:?}", e);
-            e.into_response()
-        }
-    };
+        Err(e) => e.into_response(),
+    }
 }
 
+#[tracing::instrument(
+    name = "DELETE /tickets/{id}",
+    skip(service),
+    fields(id = %id)
+)]
 pub async fn close_ticket(
     State(service): State<AppState>,
     Path(id): Path<Uuid>,
